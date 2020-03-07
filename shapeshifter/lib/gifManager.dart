@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gifimage/flutter_gifimage.dart';
+import 'package:shapeshifter/aGif.dart';
 
 class GifManager extends StatefulWidget {
   GifManager({
-    @required this.selectedSideCount,
+    @required this.selectedSideCountIndex,
   });
 
-  final ValueNotifier<int> selectedSideCount;
+  final ValueNotifier<int> selectedSideCountIndex;
 
   @override
   _GifManagerState createState() => _GifManagerState();
@@ -15,13 +16,34 @@ class GifManager extends StatefulWidget {
 class _GifManagerState extends State<GifManager> with TickerProviderStateMixin{
   final Duration timeToTransition = Duration(milliseconds: 500);
 
-  GifController ctrl0to3;
-  GifController ctrl3to4;
-  GifController ctrl4to5;
-  GifController ctrl5to6;
-  GifController ctrl6to7;
-  GifController ctrl7to8;
-  GifController ctrl8to0;
+  final List<String> names = [
+    "0To3",
+    "3To4",
+    "4To5",
+    "5To6",
+    "6To7",
+    "7To8",
+    "8To0",
+  ];
+
+  final List<int> frameCounts = [
+    28, //diff
+    32,
+    32,
+    32,
+    32,
+    31, //diff
+    32,
+  ];
+
+  final List<int> toSides = [
+    0,3,4,5,6,7,8
+  ];
+
+  //handled by manager
+  //then used as instructions by gifs
+  List<GifController> controllers = new List(7);
+  List<Widget> theGifs = new List<Widget>(7);
 
   recalc(){
     //based on 
@@ -47,45 +69,35 @@ class _GifManagerState extends State<GifManager> with TickerProviderStateMixin{
   }
 
   @override
-  void initState() {
+  void initState() async{
     //super init
     super.initState();
 
-    //init all the controller
-    ctrl0to3 = GifController(vsync: this);
-    ctrl3to4 = GifController(vsync: this);
-    ctrl4to5 = GifController(vsync: this);
-    ctrl5to6 = GifController(vsync: this);
-    ctrl6to7 = GifController(vsync: this);
-    ctrl7to8 = GifController(vsync: this);
-    ctrl8to0 = GifController(vsync: this);
+    //create all gif controllers
+    for(int i = 0; i < names.length; i++){
+      //add to lists
+      controllers[i] = GifController(vsync: this);
 
-    //catch all images
-    fetchGif(AssetImage("assets/clear/0To3.gif"));
-    fetchGif(AssetImage("assets/clear/3To4.gif"));
-    fetchGif(AssetImage("assets/clear/4To5.gif"));
-    fetchGif(AssetImage("assets/clear/5To6.gif"));
-    fetchGif(AssetImage("assets/clear/6To7.gif"));
-    fetchGif(AssetImage("assets/clear/7To8.gif"));
-    fetchGif(AssetImage("assets/clear/8To0.gif"));
+      //pass to widget
+      theGifs[i] = AGif(
+        name: names[i], 
+        controller: controllers[i],
+      );
+    }
 
     //listen to the changes to the passed notifier
-    widget.selectedSideCount.addListener(recalc);
+    widget.selectedSideCountIndex.addListener(recalc);
   }
 
   @override
   void dispose() { 
     //remove listener
-    widget.selectedSideCount.removeListener(recalc);
+    widget.selectedSideCountIndex.removeListener(recalc);
 
     //clean up
-    ctrl0to3.dispose();
-    ctrl3to4.dispose();
-    ctrl4to5.dispose();
-    ctrl5to6.dispose();
-    ctrl6to7.dispose();
-    ctrl7to8.dispose();
-    ctrl8to0.dispose();
+    for(int i = 0; i < names.length; i++){
+      controllers[i].dispose();
+    }
     
     //super dipose
     super.dispose();
@@ -102,8 +114,8 @@ class _GifManagerState extends State<GifManager> with TickerProviderStateMixin{
       ),
       child: FittedBox(
         fit: BoxFit.contain,
-        child: Center(
-          child: Text(""),
+        child: Stack(
+          children: theGifs,
         ),
       ),
     );

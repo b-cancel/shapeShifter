@@ -52,6 +52,13 @@ flutter:
     - assets/clear/6To7.gif
     - assets/clear/7To8.gif
     - assets/clear/8To0.gif
+    - assets/shape/0.png
+    - assets/shape/3.png
+    - assets/shape/4.png
+    - assets/shape/5.png
+    - assets/shape/6.png
+    - assets/shape/7.png
+    - assets/shape/8.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
